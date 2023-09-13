@@ -1,0 +1,35 @@
+image: python:3.8.12-slim
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install -r "$CI_PROJECT_DIR/requirements.txt"
+
+stages:
+  - lint-test
+  - unit-test
+
+lint-test-job:
+  stage: lint-test
+  script:
+    - "$CI_PROJECT_DIR/ci/format.sh"
+  only:
+    - master
+    - merge_requests
+
+unit-and-integ-test-job:
+  stage: unit-test
+  script:
+    - "$CI_PROJECT_DIR/ci/run_test.sh"
+  only:
+    - master
+    - merge_requests
