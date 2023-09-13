@@ -44,4 +44,5 @@ venv.bak/
 htmlcov/
 
 # Other
-FiNER/
+output_data/
+logs*/

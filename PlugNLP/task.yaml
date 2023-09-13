@@ -1,0 +1,46 @@
+task:
+  task_role:
+    classify: classifier
+    extract: extractor
+    qa: assistant
+    summarize: assistant
+    generate: writer
+  action_msg:
+    classify: please inference the label of the new data"
+    extract: please extract related entities from the new data"
+    qa: please answer the questions in new data section"
+    summarize: please summarize the text in new data section"
+    generate: please generate specific type of content from the new data section"
+  result_type:
+    classify: label
+    extract: entity
+    qa: answer
+    summarize: summarization
+    generate: generated content
+languages:
+  it: Italian
+  pl: Polish
+  ru: Russian
+  sk: Slovak
+  pt: Portuguese
+  ro: Romanian
+  da: Danish
+  sv: Swedish
+  no: Norwegian
+  en: English
+  es: Spanish
+  fr: French
+  cs: Czech
+  de: German
+  fi: Finnish
+  et: Estonian
+  lv: Latvian
+  lt: Lithuanian
+  fa: Persian
+  hu: Hungarian
+  he: Hebrew
+  el: Greek
+  ar: Arabic
+  ko: Korean
+  zh-tw: Traditional Chinese
+  zh-cn: Simplified Chinese

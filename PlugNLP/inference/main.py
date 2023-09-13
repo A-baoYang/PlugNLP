@@ -2,10 +2,17 @@ import json
 from typing import Union
 
 from langdetect import detect
+from pathlib import Path
+import sys
 
-from ..openai_func import OpenAIWrapper
-from ..utils import LANGUAGES
-from .config import task_config
+sys.path.append("..")
+from utils.openai_utils import OpenAIWrapper
+from utils.data_utils import read_data
+from utils.log_utils import logger
+
+
+root_dir = Path(__file__).absolute().parents[1]
+config = read_data(f"{root_dir}/task.yaml")
 
 
 class PlugNLP:
@@ -23,30 +30,39 @@ class PlugNLP:
         detected_lang: str = "en",
     ):
         """generate prompt according to different task type"""
-        prompt = f'you are now a {task_config["task_role"][task_type]}.\n'
+
+        prompt = f'you are now a {config["task"]["task_role"][task_type]}.\n'
+
         if example_list is not None:
             prompt += "According to the example data, \n"
+
         prompt += (
-            f'{task_config["action_msg"][task_type]}, no need to explain reason, '
-            f'just reply the {task_config["result_type"][task_type]}'
+            f'{config["task"]["action_msg"][task_type]}, no need to explain reason, '
+            f'just reply the {config["task"]["result_type"][task_type]}'
         )
+
         if task_type not in ["classify", "generate"]:
-            prompt += f" in {LANGUAGES[detected_lang]}"
+            prompt += f' in {config["languages"][detected_lang]}'
+
         if task_type in ["classify", "extract"]:
             prompt += (
                 "\nTotal answer number must be the same as length of new data.\n\n"
             )
         else:
             prompt += "\n\n"
+
         if example_list is not None:
             prompt += (
                 f"Example data: \n{json.dumps(example_list, ensure_ascii=False)}\n\n"
             )
+
         if task_type == "classify" and example_list is not None:
             prompt += (
                 "Label classes: "
                 f'{", ".join(list(set([item["label"] for item in example_list])))}\n\n'
             )
+
+        logger.info(f"Composed Prompt: {prompt}")
         return prompt
 
     def basis_func(
@@ -56,6 +72,8 @@ class PlugNLP:
         example_list: Union[list, None] = None,
         **kwargs,
     ):
+        logger.info(f"=== Running {task_type} task ===\n")
+
         detected_lang = detect(", ".join([item["text"] for item in text_list]))
         prompt = (
             self.compose_prompt(
@@ -110,10 +128,7 @@ class PlugNLP:
         **kwargs,
     ):
         return self.basis_func(
-            task_type="qa",
-            text_list=text_list,
-            example_list=example_list,
-            **kwargs,
+            task_type="qa", text_list=text_list, example_list=example_list, **kwargs,
         )
 
     def summarize(

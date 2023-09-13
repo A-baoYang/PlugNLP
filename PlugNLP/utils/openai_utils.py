@@ -1,4 +1,5 @@
 from time import sleep
+import os
 from typing import Union
 
 import openai
@@ -26,6 +27,9 @@ class OpenAIWrapper:
             except Exception:
                 raise Exception("Please check your secret.cfg format")
         else:
+            self.openai.api_key = os.environ.get("OPENAI_API_KEY", None)
+
+        if self.openai.api_key is None:
             raise Exception("Please provide your OpenAI api_token to use the module")
 
     def get_embeddings(self, text, model="text-embedding-ada-002"):
@@ -45,32 +49,20 @@ class OpenAIWrapper:
                 sleep(60)
         return res
 
-    def get_text_completion(
-        self, prompt, model="text-davinci-003", generation_params=None
-    ):
-        """generation_params (default)
-        - temperature=0.7
-        - max_tokens=1024
-        """
-        if not generation_params:
-            generation_params = {"temperature": 0.7, "max_tokens": 1024}
-        print(f"\nPrompt: {prompt}\nWith params: {generation_params}")
-        response = self.openai.Completion.create(
-            model=model, prompt=prompt, **generation_params
-        )
+    def get_text_completion(self, prompt, model="text-davinci-003", **kwargs):
+
+        print(f"\nPrompt: {prompt}\nWith params: {kwargs}")
+        response = self.openai.Completion.create(model=model, prompt=prompt, **kwargs)
         res = response["choices"][0]["text"].strip()
         print(f"\nGPT-3 Reply: {res}\n")
         return res
 
-    def get_chat_completion(
-        self, messages, model="gpt-3.5-turbo", generation_params=None
-    ):
-        if not generation_params:
-            generation_params = {"temperature": 0.7, "max_tokens": 1024}
-        print(f"\nMessages: {messages}\nWith params: {generation_params}")
+    def get_chat_completion(self, messages, model="gpt-3.5-turbo", **kwargs):
+
+        print(f"\nMessages: {messages}\nWith params: {kwargs}")
 
         response = self.openai.ChatCompletion.create(
-            model=model, messages=messages, **generation_params
+            model=model, messages=messages, **kwargs
         )
         res = response["choices"][0]["message"]["content"].strip()
         print(f"\nChatGPT Reply: {res}\n")
