@@ -1,6 +1,6 @@
 import logging
 import os
-
+from tqdm import tqdm
 from py2neo import Graph
 from py2neo.bulk import merge_nodes, merge_relationships
 
@@ -39,8 +39,8 @@ class NEO4JConnector:
         cursor = self.conn.run(query)
         return cursor.data()
 
-    def update_nodes(self, name_correction_dict: dict):
-        for k, v in name_correction_dict.items():
+    def update_nodes(self, name_correction_dict: dict, no_tqdm: bool = False):
+        for k, v in tqdm(name_correction_dict.items(), no_tqdm=no_tqdm):
             if v:
                 query = 'MATCH (n {name: "%s"}) SET n.name = "%s"' % (k, v)
             else:
